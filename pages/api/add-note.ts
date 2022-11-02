@@ -21,12 +21,11 @@ export default async function noteHandler(req: any, res: any) {
               },
             },
 
-            // owner: {
-            //   connect: {
-            //     id: session.user.id,
-            //     email: session.user.email,
-            //   },
-            // },
+            owner: {
+              connect: {
+                email: session!.user!.email!,
+              },
+            },
           },
         })
         .then((r) => console.log(r));

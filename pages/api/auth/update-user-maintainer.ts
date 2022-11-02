@@ -1,6 +1,6 @@
-import prisma from "../../lib/prisma";
+import prisma from "../../../lib/prisma";
 import { unstable_getServerSession } from "next-auth/next";
-import { authOptions } from "./auth/[...nextauth]";
+import { authOptions } from "./[...nextauth]";
 
 export default async function projectHandler(req: any, res: any) {
   const { body, method } = req;
@@ -10,22 +10,19 @@ export default async function projectHandler(req: any, res: any) {
 
   if (session && session.user) {
     switch (method) {
-      case "POST":
+      case "GET":
         // Update or create data in your database
-        await prisma.project
-          .create({
+        await prisma.user
+          .update({
+            where: {
+              email: session!.user!.email!,
+            },
             data: {
-              title: body.title,
-              description: body.description,
-              owner: {
-                connect: {
-                  email: session!.user!.email!,
-                },
-              },
+              type: "MAINTAINER",
             },
           })
           .then((r) => console.log(r));
-        res.status(200).json({ message: "Success" });
+        res.status(200).json({ message: "UPDATED USER" });
         break;
       default:
         res.setHeader("Allow", ["POST"]);

@@ -13,6 +13,7 @@ datasource db {
 model Project {
   id                Int      @id @default(autoincrement())
   title             String   @db.VarChar(255)
+  description       String? @db.Text
   ownerId           Int?
   owner             User?     @relation(fields: [ownerId], references: [id], onUpdate: Restrict, map: "project_ibfk_1")
   requirements      Requirement[]
@@ -42,6 +43,8 @@ model Note {
   content   String?  @db.Text
   requirementId  Int
   requirement      Requirement     @relation(fields: [requirementId], references: [id], onUpdate: Restrict, map: "note_ibfk_1")
+  ownerId           Int?
+  owner             User?     @relation(fields: [ownerId], references: [id], onUpdate: Restrict, map: "note_ibfk_2")
 
   @@index([requirementId], map: "requirementId")
   @@map("Note")
@@ -73,6 +76,7 @@ model User {
   image           String?
   type            Type?    @default(CLIENT)
   projects        Project[]
+  notes           Note[]
   requirements    Requirement[]
   // profile         Profile?
   @@map("User")

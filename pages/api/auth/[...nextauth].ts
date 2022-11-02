@@ -48,6 +48,11 @@ export const authOptions = {
     }) {
       // Send properties to the client, like an access_token from a provider.
       session.accessToken = token.accessToken;
+      session.user = await prisma.user.findUnique({
+        where: {
+          email: session.user.email,
+        },
+      });
       return session;
     },
   },
