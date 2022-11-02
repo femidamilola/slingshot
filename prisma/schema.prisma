@@ -9,3 +9,76 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Project {
+  id                Int      @id @default(autoincrement())
+  title             String   @db.VarChar(255)
+  ownerId           Int?
+  owner             User?     @relation(fields: [ownerId], references: [id], onUpdate: Restrict, map: "project_ibfk_1")
+  requirements      Requirement[]
+
+  @@index([ownerId], map: "ownerId")
+}
+
+model Requirement {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(255)
+  ownerId    Int?
+  notes      Note[]
+  time       Time?
+  owner      User?    @relation(fields: [ownerId], references: [id], onUpdate: Restrict, map: "requirement_ibfk_1")
+  projectId  Int      @unique
+
+  project   Project   @relation(fields: [projectId], references: [id], onUpdate: Restrict, map: "requirement_ibfk_2")
+
+
+  @@index([ownerId], map: "ownerId")
+  @@map("Requirement")
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  content   String?  @db.Text
+  requirementId  Int
+  requirement      Requirement     @relation(fields: [requirementId], references: [id], onUpdate: Restrict, map: "note_ibfk_1")
+
+  @@index([requirementId], map: "requirementId")
+  @@map("Note")
+}
+
+model Time {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamp(0) @map("created_at")
+  time      Int
+  requirementId  Int  @unique
+  requirement      Requirement     @relation(fields: [requirementId], references: [id], onUpdate: Restrict, map: "time_ibfk_1")
+
+  @@index([requirementId], map: "requirementId")
+  @@map("Time")
+}
+
+model Profile {
+  id     Int     @id @default(autoincrement())
+  bio    String? @db.Text
+  userId Int     @unique(map: "userId")
+  // user   User    @relation(fields: [userId], references: [id], onUpdate: Restrict, map: "profile_ibfk_1")
+  @@map("Profile")
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  name            String?  @db.VarChar(255)
+  email           String   @unique(map: "email") @db.VarChar(255)
+  image           String?
+  type            Type?    @default(CLIENT)
+  projects        Project[]
+  requirements    Requirement[]
+  // profile         Profile?
+  @@map("User")
+}
+
+enum Type {
+  CLIENT
+  MAINTAINER
+}
